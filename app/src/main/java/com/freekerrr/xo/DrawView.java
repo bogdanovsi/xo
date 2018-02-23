@@ -5,31 +5,31 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.Arrays;
+
 class DrawView extends View {
 
-    public int width;
-    public int height;
+    public float width;
+    public float height;
     private Bitmap bitmap;
     private Canvas canvas;
-    private Path path;
+    private Point[] dxMap;
     Context context;
     private Paint paint;
-    private float x, y;
-    private XOManager xoManager;
 
+    private float stepX;
+    private float stepY;
+    private float x, y;
+    private GameController gameController;
 
     public DrawView(Context c, AttributeSet attrs) {
         super(c, attrs);
         context = c;
-
-        xoManager = new XOManager();
-        // we set a new Path
-        path = new Path();
 
         // and we set a new Paint with the desired attributes
         paint = new Paint();
@@ -40,33 +40,67 @@ class DrawView extends View {
         paint.setStrokeWidth(4f);
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+    }
+
     // override onSizeChanged
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-
         // your canvas will draw onto the defined Bitmap
         bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         canvas = new Canvas(bitmap);
+
+        width = w;
+        height = h;
+
+        gameController = new GameController(width, height);
+
+        stepX = gameController.getStepX();
+        stepY = gameController.getStepY();
     }
 
     // override onDraw
     @Override
     protected void onDraw(Canvas canvas) {
-        int weight = canvas.getWidth();
-        int height = canvas.getHeight();
-
         super.onDraw(canvas);
-        // draw the path with the paint on the canvas when onDraw
-        canvas.drawPath(path, paint);
+        this.canvas = canvas;
 
-        paint.setStrokeWidth(6f);
-        drawTable(weight, height);
+        paint.setStrokeWidth(8f);
+        drawTable(width, height);
         paint.setStrokeWidth(4f);
+
+        dxMap = gameController.getDxMap();
+
+        drawMap(gameController.getMap());
+
+        System.out.println(Arrays.toString(gameController.getMap()));
+    }
+
+    private void drawMap(int[] map) {
+        drawTable(width, height);
+
+        for (int i = 0; i < map.length; i++) {
+
+            if (map[i] != 0) {
+                if (map[i] == 1) {
+                    drawX(dxMap[i]);
+                } else
+                    drawO(dxMap[i]);
+            }
+
+        }
     }
 
     public void clearCanvas() {
-        path.reset();
+        gameController.setMap(new int[9]);
         invalidate();
     }
 
@@ -76,105 +110,45 @@ class DrawView extends View {
         float ex = event.getX();
         float ey = event.getY();
 
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            xoManager.oneStep(ex, ey);
+        Log.i("touchCoordinates", "ex: " + ex + " ey: " + ey);
 
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            gameController.oneStep(ex, ey);
+            invalidate();
         }
+
         return true;
     }
 
-    public void drawTable(int weight, int height) {
-        canvas.drawLine(weight * 0.33f, 0f, weight * 0.33f, height, paint); // |
-        canvas.drawLine(weight * 0.66f, 0f, weight * 0.66f, height, paint); //  |
-        canvas.drawLine(0f, height * 0.33f, weight, height * 0.33f, paint); // --
-        canvas.drawLine(0f, height * 0.66f, weight, height * 0.66f, paint); // __
+    public void drawTable(float weight, float height) {
+        canvas.drawLine(weight * 0.333f, 0f, weight * 0.333f, height, paint); // |
+        canvas.drawLine(weight * 0.666f, 0f, weight * 0.666f, height, paint); //  |
+        canvas.drawLine(0f, height * 0.333f, weight, height * 0.333f, paint); // --
+        canvas.drawLine(0f, height * 0.666f, weight, height * 0.666f, paint); // __
+    }
+
+    private void drawX(Point p) {
+        // на основе одной точки написать алгоритм рисования Х или О
+        float x1 = p.getX() - stepX * 0.4f;
+        float x2 = p.getX() + stepX * 0.4f;
+        float y1 = p.getY() - stepX * 0.4f;
+        float y2 = p.getY() + stepX * 0.4f;
+
+        canvas.drawLine(x1, y1, x2, y2, paint);
+        canvas.drawLine(x2, y1, x1, y2, paint);
+    }
+
+    private void drawO(Point p) {
+        float x1 = p.getX() - stepX * 0.4f;
+        float x2 = p.getX() + stepX * 0.4f;
+        float y1 = p.getY() - stepX * 0.4f;
+        float y2 = p.getY() + stepX * 0.4f;
+
+        canvas.drawOval(x1, y1, x2, y2, paint);
     }
 
     public Canvas getCanvas() {
         return canvas;
     }
 
-    /**
-     * Created by freekerrr on 19.02.2018.
-     */
-
-    public static class XOManager {
-
-        private int[] map;
-        private float weight;
-        private float height;
-        private Point[] dxMap;
-        private float dl;
-        private float stepX;
-        private float stepY;
-        private boolean player;
-
-        public XOManager() {
-            map = new int[9];
-        }
-
-        public XOManager(int w, int h) {
-            this();
-            weight = w;
-            height = h;
-
-            setMap();
-        }
-
-        private void setMap() {
-            dxMap = new Point[9];
-
-            stepX = weight / 0.33f;
-            stepY = height / 0.33f;
-
-            dxMap[0] = new Point(stepX / 2f, stepY / 2f);
-
-            dl = new Point().distanceTwoPoint(dxMap[0]);
-
-            for (int i = 1; i < 9; i++) {
-                dxMap[i] = dxMap[i - 1].plusXY(stepX, stepY);
-            }
-        }
-
-        public void setWH(float weight, float height) {
-            this.weight = weight;
-            this.height = height;
-            setMap();
-        }
-
-        public void oneStep(int ex, int ey) {
-            Point point = new Point(ex, ey);
-
-            float dist;
-            for (Point p :
-                    dxMap) {
-                dist = p.distanceTwoPoint(point);
-                if (dist == dl)
-                    return;
-                if (dist < dl) {
-                    drawStep(p);
-                    player = !player;
-
-                }
-
-            }
-        }
-
-        private void drawStep(Point p) {
-            if (player) {
-                drawX(p);
-            } else {
-                drawO(p);
-            }
-        }
-
-        private void drawX(Point p) {
-
-        }
-
-        private void drawO(Point p) {
-
-        }
-
-    }
 }

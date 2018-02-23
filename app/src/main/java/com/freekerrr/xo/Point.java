@@ -26,7 +26,7 @@ public class Point {
     }
 
     public float distanceTwoPoint(Point p) {
-        return (float) Math.sqrt(Math.pow(p.getX() - x, 2) + Math.pow(p.getY() - y, 2));
+        return (float) Math.hypot(p.getX() - x, p.getY() - y);
     }
 
     public float getX() {
@@ -43,5 +43,20 @@ public class Point {
 
     public void setY(float y) {
         this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "x:" + x + " y:" + y;
+    }
+
+    public Point plusX(float x) {
+        float ex = this.x + x;
+        return new Point(ex, this.y);
+    }
+
+    public Point plusY(float y) {
+        float ey = this.y + y;
+        return new Point(this.x, ey);
     }
 }
