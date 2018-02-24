@@ -19,19 +19,30 @@ public class GameController {
     private float stepY;
     private boolean player;
 
+    private int size;
+
+
+    private int playerX;
+    private int playerY;
+
     public GameController() {
         map = new int[9];
         weight = 900;
         height = 900;
         player = true;
+
+        playerX = 0;
+        playerY = 0;
     }
 
-    public GameController(float w, float h) {
+    public GameController(float w, float h, int s) {
         this();
         weight = w;
         height = h;
+        size = s;
 
-        setMap(3);
+        map = new int[size * size];
+        setMap(size);
     }
 
     private void setMap(int size) {
@@ -44,7 +55,7 @@ public class GameController {
 
         dxMap[0] = new Point(stepX / 2f, stepY / 2f);
 
-        dl = new Point(0, stepY).distanceTwoPoint(dxMap[0]);
+        dl = new Point(0, stepY / 2f).distanceTwoPoint(dxMap[0]);
 
         for (int i = 1; i < dxMap.length; i++) {
             if (i % size == 0) {
@@ -70,7 +81,7 @@ public class GameController {
     public void oneStep(float ex, float ey) {
         Point point = new Point(ex, ey);
 
-        int p = 0;
+        int p;
         if (player) {
             p = 1;
         } else {
@@ -81,21 +92,91 @@ public class GameController {
         for (int i = 0; i < dxMap.length; i++) {
             dist = dxMap[i].distanceTwoPoint(point);
 
-            Log.i("Distance: ", String.valueOf(dist));
-            Log.i("Dl: ", String.valueOf(dl));
-
             if (dist == dl) {
                 break;
             }
 
-            if (dist < dl) {
+            if (dist < dl && map[i] == 0) {
                 map[i] = p;
+
+                Log.i("Distance: ", String.valueOf(dist));
+                Log.i("Dl: ", String.valueOf(dl));
+
+                checkMap(i);
+
+                player = !player;
             }
         }
 
-        player = !player;
     }
 
+    private void checkMap(int index) {
+        switch (size) {
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                win3(index);
+                break;
+            case 4:
+                break;
+            default:
+                break;
+
+        }
+
+
+    }
+
+    private void win3(int index) {
+
+        int pl = map[index];
+
+        checkLine(index, pl, 1);
+        System.out.println("Проверка горизонтали: " + (checkLine(index, pl, 1) + checkLine(index, pl, -1) - 1));
+        checkLine(index, pl, size);
+        System.out.println("Проверка вертикали: " + checkLine(index, pl, size));
+        checkLine(index, pl, size - 1);
+        System.out.println("Проверка правовверх: " + checkLine(index, pl, size - 1));
+        checkLine(index, pl, size + 1);
+        System.out.println("Проверка правовниз: " + checkLine(index, pl, size + 1));
+        System.out.println("map: \n" +
+                map[0] + " " + map[1] + " " + map[2] + "\n" +
+                map[3] + " " + map[4] + " " + map[5] + "\n" +
+                map[6] + " " + map[7] + " " + map[8]);
+        //тогда мы находимся у левого края
+//        if (index % size == 0) {
+//        } else
+//            //тогда мы находимся у правого края
+//        {
+//            if ((index + 1) % size == 0) {
+//                checkLine(index, pl, -1);
+//                System.out.println(checkLine(index, pl, -1));
+//            } else {
+//                //мы в области
+//
+//            }
+//        }
+
+    }
+
+    private int checkLine(int index, int pl, int step) {
+        int count = 0;
+
+        if (index > 0 && index < size * size)
+            if (map[index] == pl) {
+                count++;
+                count += checkLine(index + step, pl, step);
+            }
+
+        return count;
+    }
+
+    public void cleanMap() {
+        map = new int[size * size];
+        player = true;
+    }
 
     public int[] getMap() {
         return map;
@@ -112,5 +193,10 @@ public class GameController {
     public float getStepY() {
         return stepY;
     }
+
+    public int getSize() {
+        return size;
+    }
+
 }
 

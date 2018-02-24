@@ -61,7 +61,9 @@ class DrawView extends View {
         width = w;
         height = h;
 
-        gameController = new GameController(width, height);
+        gameController = new GameController(width, height, 3);
+
+        dxMap = gameController.getDxMap();
 
         stepX = gameController.getStepX();
         stepY = gameController.getStepY();
@@ -74,19 +76,16 @@ class DrawView extends View {
         this.canvas = canvas;
 
         paint.setStrokeWidth(8f);
-        drawTable(width, height);
+        if (gameController.getSize() > 15) {
+            paint.setStrokeWidth(3f);
+        }
+        drawTable(width, height, gameController.getSize());
         paint.setStrokeWidth(4f);
 
-        dxMap = gameController.getDxMap();
-
         drawMap(gameController.getMap());
-
-        System.out.println(Arrays.toString(gameController.getMap()));
     }
 
     private void drawMap(int[] map) {
-        drawTable(width, height);
-
         for (int i = 0; i < map.length; i++) {
 
             if (map[i] != 0) {
@@ -100,19 +99,18 @@ class DrawView extends View {
     }
 
     public void clearCanvas() {
-        gameController.setMap(new int[9]);
+        gameController.cleanMap();
         invalidate();
     }
 
-    //override the onTouchEvent
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float ex = event.getX();
         float ey = event.getY();
 
-        Log.i("touchCoordinates", "ex: " + ex + " ey: " + ey);
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            Log.i("actionDownCoordinates", "ex: " + ex + " ey: " + ey);
             gameController.oneStep(ex, ey);
             invalidate();
         }
@@ -120,15 +118,23 @@ class DrawView extends View {
         return true;
     }
 
-    public void drawTable(float weight, float height) {
-        canvas.drawLine(weight * 0.333f, 0f, weight * 0.333f, height, paint); // |
-        canvas.drawLine(weight * 0.666f, 0f, weight * 0.666f, height, paint); //  |
-        canvas.drawLine(0f, height * 0.333f, weight, height * 0.333f, paint); // --
-        canvas.drawLine(0f, height * 0.666f, weight, height * 0.666f, paint); // __
+    public void drawTable(float width, float height, int size) {
+
+        float mulW = width / size;
+        float mulH = height / size;
+
+        for (float i = 1; i < size; i++) {
+            canvas.drawLine(mulW * i, 0, mulW * i, height, paint);
+            canvas.drawLine(0f, mulH * i, width, mulH * i, paint);
+        }
+
+//        canvas.drawLine(width * 0.333f, 0f, width * 0.333f, height, paint); // |
+//        canvas.drawLine(width * 0.666f, 0f, width * 0.666f, height, paint); //  |
+//        canvas.drawLine(0f, height * 0.333f, width, height * 0.333f, paint); // --
+//        canvas.drawLine(0f, height * 0.666f, width, height * 0.666f, paint); // __
     }
 
     private void drawX(Point p) {
-        // на основе одной точки написать алгоритм рисования Х или О
         float x1 = p.getX() - stepX * 0.4f;
         float x2 = p.getX() + stepX * 0.4f;
         float y1 = p.getY() - stepX * 0.4f;
