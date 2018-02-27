@@ -61,7 +61,7 @@ class DrawView extends View {
         width = w;
         height = h;
 
-        gameController = new GameController(width, height, 3);
+        gameController = new GameController(width, height, 5);
 
         dxMap = gameController.getDxMap();
 

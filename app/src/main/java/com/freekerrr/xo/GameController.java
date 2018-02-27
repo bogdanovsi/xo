@@ -2,6 +2,7 @@ package com.freekerrr.xo;
 
 import android.util.Log;
 
+import java.sql.Array;
 import java.util.Arrays;
 
 /**
@@ -24,6 +25,7 @@ public class GameController {
 
     private int playerX;
     private int playerY;
+    private int winScore;
 
     public GameController() {
         map = new int[9];
@@ -31,6 +33,7 @@ public class GameController {
         height = 900;
         player = true;
 
+        winScore = 3;
         playerX = 0;
         playerY = 0;
     }
@@ -40,6 +43,16 @@ public class GameController {
         weight = w;
         height = h;
         size = s;
+
+        if (size == 1) {
+            winScore = 1;
+        } else if (size == 2) {
+            winScore = 2;
+        } else if (size == 4) {
+            winScore = 4;
+        } else if (size > 4) {
+            winScore = 5;
+        }
 
         map = new int[size * size];
         setMap(size);
@@ -111,60 +124,63 @@ public class GameController {
     }
 
     private void checkMap(int index) {
-        switch (size) {
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                win3(index);
-                break;
-            case 4:
-                break;
-            default:
-                break;
-
-        }
-
-
+        win3(index);
     }
 
     private void win3(int index) {
 
         int pl = map[index];
+        System.out.println("index: " + index);
 
-        checkLine(index, pl, 1);
-        System.out.println("Проверка горизонтали: " + (checkLine(index, pl, 1) + checkLine(index, pl, -1) - 1));
-        checkLine(index, pl, size);
-        System.out.println("Проверка вертикали: " + checkLine(index, pl, size));
-        checkLine(index, pl, size - 1);
-        System.out.println("Проверка правовверх: " + checkLine(index, pl, size - 1));
-        checkLine(index, pl, size + 1);
-        System.out.println("Проверка правовниз: " + checkLine(index, pl, size + 1));
-        System.out.println("map: \n" +
-                map[0] + " " + map[1] + " " + map[2] + "\n" +
-                map[3] + " " + map[4] + " " + map[5] + "\n" +
-                map[6] + " " + map[7] + " " + map[8]);
-        //тогда мы находимся у левого края
-//        if (index % size == 0) {
-//        } else
-//            //тогда мы находимся у правого края
-//        {
-//            if ((index + 1) % size == 0) {
+        int horizontal = 0;
+        int rightDown = 0;
+        int rightUp = 0;
+        int vertical = 0;
+//        тогда мы находимся у левого края
+        if (index % size == 0) {
+            horizontal = checkLine(index, pl, 1);
+            rightDown = checkLine(index, pl, size + 1);
+            rightUp = checkLine(index, pl, -size + 1);
+
+            System.out.println("Проверка горизонтали: " + checkLine(index, pl, 1));
+            System.out.println("Проверка право вниз: " + checkLine(index, pl, size + 1));
+            System.out.println("Проверка право вверх: " + checkLine(index, pl, -size + 1));
+        } else if ((index + 1) % size == 0) {
+            //тогда мы находимся у правого края
+            horizontal = checkLine(index, pl, -1);
+            rightDown = checkLine(index, pl, size - 1);
+            rightUp = checkLine(index, pl, -size - 1);
+
+            System.out.println("Проверка горизонтали: " + checkLine(index, pl, -1));
+            System.out.println("Проверка лево вниз: " + checkLine(index, pl, size - 1));
+            System.out.println("Проверка лево вверх: " + checkLine(index, pl, -size - 1));
 //                checkLine(index, pl, -1);
 //                System.out.println(checkLine(index, pl, -1));
-//            } else {
-//                //мы в области
-//
-//            }
-//        }
+        } else {
+            //мы в области
 
+            horizontal = (checkLine(index, pl, 1) + checkLine(index, pl, -1) - 1);
+            rightDown = (checkLine(index, pl, size + 1) + checkLine(index, pl, -(size + 1)) - 1);
+            rightUp = (checkLine(index, pl, size - 1) + checkLine(index, pl, -(size - 1)) - 1);
+
+            System.out.println("Проверка горизонтали: " + (checkLine(index, pl, 1) + checkLine(index, pl, -1) - 1));
+            System.out.println("Проверка диагонали вправо вверх: " + (checkLine(index, pl, size - 1) + checkLine(index, pl, -(size - 1)) - 1));
+            System.out.println("Проверка диагонали вправо вниз: " + (checkLine(index, pl, size + 1) + checkLine(index, pl, -(size + 1)) - 1));
+        }
+
+        vertical = (checkLine(index, pl, size) + checkLine(index, pl, -size) - 1);
+
+        System.out.println("Проверка вертикали: " + (checkLine(index, pl, size) + checkLine(index, pl, -size) - 1));
+
+        if (horizontal == winScore || rightDown == winScore || rightUp == winScore || vertical == winScore) {
+            System.out.println(pl + " player win!!");
+        }
     }
 
     private int checkLine(int index, int pl, int step) {
         int count = 0;
 
-        if (index > 0 && index < size * size)
+        if (index >= 0 && index < size * size)
             if (map[index] == pl) {
                 count++;
                 count += checkLine(index + step, pl, step);
