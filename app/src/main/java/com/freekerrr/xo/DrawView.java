@@ -9,8 +9,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
-import java.util.Arrays;
+import android.widget.TextView;
 
 class DrawView extends View {
 
@@ -23,9 +22,9 @@ class DrawView extends View {
     private Paint paint;
 
     private float stepX;
-    private float stepY;
-    private float x, y;
     private GameController gameController;
+    private TextView tvplayerX;
+    private TextView tvplayerO;
 
     public DrawView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -61,12 +60,11 @@ class DrawView extends View {
         width = w;
         height = h;
 
-        gameController = new GameController(width, height, 5);
+        gameController = new GameController(tvplayerX, tvplayerO, width, height, 5);
 
         dxMap = gameController.getDxMap();
 
         stepX = gameController.getStepX();
-        stepY = gameController.getStepY();
     }
 
     // override onDraw
@@ -107,7 +105,6 @@ class DrawView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float ex = event.getX();
         float ey = event.getY();
-
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             Log.i("actionDownCoordinates", "ex: " + ex + " ey: " + ey);
@@ -157,4 +154,12 @@ class DrawView extends View {
         return canvas;
     }
 
+    public GameController getGameController() {
+        return gameController;
+    }
+
+    public void setTv(TextView tv1, TextView tv2) {
+        tvplayerX = tv1;
+        tvplayerO = tv2;
+    }
 }

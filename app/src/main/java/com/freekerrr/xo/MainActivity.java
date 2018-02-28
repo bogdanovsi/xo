@@ -1,19 +1,15 @@
 package com.freekerrr.xo;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.DrawableWrapper;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
     DrawView drawView;
+    TextView playerX;
+    TextView playerO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +17,11 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         drawView = (DrawView) findViewById(R.id.drawView);
-        //  drawView.drawTable(900,900);
+
+        playerX = (TextView) findViewById(R.id.playerX);
+        playerO = (TextView) findViewById(R.id.playerO);
+
+        drawView.setTv(playerX, playerO);
     }
 
     public void clearCanvas(View view) {

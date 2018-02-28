@@ -1,8 +1,8 @@
 package com.freekerrr.xo;
 
 import android.util.Log;
+import android.widget.TextView;
 
-import java.sql.Array;
 import java.util.Arrays;
 
 /**
@@ -19,12 +19,13 @@ public class GameController {
     private float stepX;
     private float stepY;
     private boolean player;
-
+    private TextView tvplayerX;
+    private TextView tvplayerO;
     private int size;
 
-
     private int playerX;
-    private int playerY;
+    private int playerO;
+
     private int winScore;
 
     public GameController() {
@@ -35,14 +36,17 @@ public class GameController {
 
         winScore = 3;
         playerX = 0;
-        playerY = 0;
+        playerO = 0;
     }
 
-    public GameController(float w, float h, int s) {
+    public GameController(TextView tv1, TextView tv2, float w, float h, int s) {
         this();
         weight = w;
         height = h;
         size = s;
+
+        tvplayerX = tv1;
+        tvplayerO = tv2;
 
         if (size == 1) {
             winScore = 1;
@@ -115,7 +119,7 @@ public class GameController {
                 Log.i("Distance: ", String.valueOf(dist));
                 Log.i("Dl: ", String.valueOf(dl));
 
-                checkMap(i);
+                checkWin(i);
 
                 player = !player;
             }
@@ -123,11 +127,7 @@ public class GameController {
 
     }
 
-    private void checkMap(int index) {
-        win3(index);
-    }
-
-    private void win3(int index) {
+    private void checkWin(int index) {
 
         int pl = map[index];
         System.out.println("index: " + index);
@@ -158,7 +158,6 @@ public class GameController {
 //                System.out.println(checkLine(index, pl, -1));
         } else {
             //мы в области
-
             horizontal = (checkLine(index, pl, 1) + checkLine(index, pl, -1) - 1);
             rightDown = (checkLine(index, pl, size + 1) + checkLine(index, pl, -(size + 1)) - 1);
             rightUp = (checkLine(index, pl, size - 1) + checkLine(index, pl, -(size - 1)) - 1);
@@ -174,6 +173,13 @@ public class GameController {
 
         if (horizontal == winScore || rightDown == winScore || rightUp == winScore || vertical == winScore) {
             System.out.println(pl + " player win!!");
+            if (pl == 1) {
+                playerX++;
+            } else {
+                playerO++;
+            }
+            tvplayerX.setText("X: " + playerX);
+            tvplayerO.setText("O: " + playerO);
         }
     }
 
@@ -191,7 +197,7 @@ public class GameController {
 
     public void cleanMap() {
         map = new int[size * size];
-        player = true;
+        //  player = true;
     }
 
     public int[] getMap() {
@@ -214,5 +220,8 @@ public class GameController {
         return size;
     }
 
+    public int[] getPlayersScore() {
+        return new int[]{playerX, playerO};
+    }
 }
 
