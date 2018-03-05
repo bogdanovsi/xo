@@ -25,10 +25,16 @@ class DrawView extends View {
     private GameController gameController;
     private TextView tvplayerX;
     private TextView tvplayerO;
+    private boolean winner;
+    private int indexStart;
+    private int indexEnd;
+
+    private int size;
 
     public DrawView(Context c, AttributeSet attrs) {
         super(c, attrs);
         context = c;
+        winner = false;
 
         // and we set a new Paint with the desired attributes
         paint = new Paint();
@@ -60,7 +66,9 @@ class DrawView extends View {
         width = w;
         height = h;
 
-        gameController = new GameController(tvplayerX, tvplayerO, width, height, 5);
+        gameController = new GameController(tvplayerX, tvplayerO, width, height, size);
+
+        gameController.setDrawView(this);
 
         dxMap = gameController.getDxMap();
 
@@ -77,22 +85,40 @@ class DrawView extends View {
         if (gameController.getSize() > 15) {
             paint.setStrokeWidth(3f);
         }
-        drawTable(width, height, gameController.getSize());
-        paint.setStrokeWidth(4f);
+        drawTable(gameController.getSize());
+        paint.setStrokeWidth(8f);
 
         drawMap(gameController.getMap());
+
+        //drawWinLine(winner);
+    }
+
+    private void drawWinLine(boolean winner) {
+        if (winner) {
+            paint.setStrokeWidth(10f);
+            canvas.drawLine(dxMap[indexStart].getX(), dxMap[indexStart].getY(),
+                    dxMap[indexEnd].getX(), dxMap[indexEnd].getY(), paint);
+            paint.setStrokeWidth(4f);
+
+            winner = false;
+        }
+    }
+
+    public void setWinLine(WinLine wl) {
+        indexStart = wl.indexStart;
+        indexEnd = wl.indexEnd;
+
+        winner = true;
     }
 
     private void drawMap(int[] map) {
         for (int i = 0; i < map.length; i++) {
-
             if (map[i] != 0) {
                 if (map[i] == 1) {
                     drawX(dxMap[i]);
                 } else
                     drawO(dxMap[i]);
             }
-
         }
     }
 
@@ -115,7 +141,8 @@ class DrawView extends View {
         return true;
     }
 
-    public void drawTable(float width, float height, int size) {
+    public void drawTable(int size) {
+        paint.setColor(Color.parseColor("#F5C071"));
 
         float mulW = width / size;
         float mulH = height / size;
@@ -124,14 +151,12 @@ class DrawView extends View {
             canvas.drawLine(mulW * i, 0, mulW * i, height, paint);
             canvas.drawLine(0f, mulH * i, width, mulH * i, paint);
         }
-
-//        canvas.drawLine(width * 0.333f, 0f, width * 0.333f, height, paint); // |
-//        canvas.drawLine(width * 0.666f, 0f, width * 0.666f, height, paint); //  |
-//        canvas.drawLine(0f, height * 0.333f, width, height * 0.333f, paint); // --
-//        canvas.drawLine(0f, height * 0.666f, width, height * 0.666f, paint); // __
     }
 
     private void drawX(Point p) {
+        paint.setColor(Color.parseColor("#E39259"));
+        paint.setStrokeWidth(10f);
+
         float x1 = p.getX() - stepX * 0.4f;
         float x2 = p.getX() + stepX * 0.4f;
         float y1 = p.getY() - stepX * 0.4f;
@@ -142,6 +167,9 @@ class DrawView extends View {
     }
 
     private void drawO(Point p) {
+        paint.setColor(Color.parseColor("#91BBC9"));
+        paint.setStrokeWidth(10f);
+
         float x1 = p.getX() - stepX * 0.4f;
         float x2 = p.getX() + stepX * 0.4f;
         float y1 = p.getY() - stepX * 0.4f;
@@ -161,5 +189,9 @@ class DrawView extends View {
     public void setTv(TextView tv1, TextView tv2) {
         tvplayerX = tv1;
         tvplayerO = tv2;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 }

@@ -16,10 +16,14 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        drawView = (DrawView) findViewById(R.id.drawView);
+        drawView = findViewById(R.id.drawView);
 
-        playerX = (TextView) findViewById(R.id.playerX);
-        playerO = (TextView) findViewById(R.id.playerO);
+        int size = getIntent().getIntExtra("size", 0);
+
+        drawView.setSize(size);
+
+        playerX = findViewById(R.id.playerX);
+        playerO = findViewById(R.id.playerO);
 
         drawView.setTv(playerX, playerO);
     }

@@ -22,6 +22,7 @@ public class GameController {
     private TextView tvplayerX;
     private TextView tvplayerO;
     private int size;
+    private DrawView drawView;
 
     private int playerX;
     private int playerO;
@@ -59,16 +60,14 @@ public class GameController {
         }
 
         map = new int[size * size];
-        setMap(size);
+        setDxMap(size);
     }
 
-    private void setMap(int size) {
+    private void setDxMap(int size) {
         dxMap = new Point[size * size];
 
         stepX = weight / size;
         stepY = height / size;
-
-        System.out.println("Steps: " + stepX + " " + stepY);
 
         dxMap[0] = new Point(stepX / 2f, stepY / 2f);
 
@@ -82,13 +81,6 @@ public class GameController {
             }
         }
 
-        Log.i("dxMap", Arrays.toString(dxMap));
-    }
-
-    public void setWH(float weight, float height) {
-        this.weight = weight;
-        this.height = height;
-        setMap(4);
     }
 
     public void setMap(int[] map) {
@@ -116,26 +108,24 @@ public class GameController {
             if (dist < dl && map[i] == 0) {
                 map[i] = p;
 
-                Log.i("Distance: ", String.valueOf(dist));
-                Log.i("Dl: ", String.valueOf(dl));
-
                 checkWin(i);
 
                 player = !player;
+
+                break;
             }
         }
 
     }
 
     private void checkWin(int index) {
-
         int pl = map[index];
         System.out.println("index: " + index);
 
-        int horizontal = 0;
-        int rightDown = 0;
-        int rightUp = 0;
-        int vertical = 0;
+        WinLine horizontal = null;
+        WinLine rightDown = null;
+        WinLine rightUp = null;
+        WinLine vertical = null;
 //        тогда мы находимся у левого края
         if (index % size == 0) {
             horizontal = checkLine(index, pl, 1);
@@ -158,46 +148,72 @@ public class GameController {
 //                System.out.println(checkLine(index, pl, -1));
         } else {
             //мы в области
-            horizontal = (checkLine(index, pl, 1) + checkLine(index, pl, -1) - 1);
-            rightDown = (checkLine(index, pl, size + 1) + checkLine(index, pl, -(size + 1)) - 1);
-            rightUp = (checkLine(index, pl, size - 1) + checkLine(index, pl, -(size - 1)) - 1);
+            horizontal = checkLine(index, pl, 1).plus(checkLine(index, pl, -1));
+            horizontal.count -= 1;
+            rightDown = checkLine(index, pl, size + 1).plus(checkLine(index, pl, -(size + 1)));
+            rightDown.count -= 1;
+            rightUp = checkLine(index, pl, size - 1).plus(checkLine(index, pl, -(size - 1)));
+            rightUp.count -= 1;
 
-            System.out.println("Проверка горизонтали: " + (checkLine(index, pl, 1) + checkLine(index, pl, -1) - 1));
-            System.out.println("Проверка диагонали вправо вверх: " + (checkLine(index, pl, size - 1) + checkLine(index, pl, -(size - 1)) - 1));
-            System.out.println("Проверка диагонали вправо вниз: " + (checkLine(index, pl, size + 1) + checkLine(index, pl, -(size + 1)) - 1));
+//            System.out.println("Проверка горизонтали: " + (checkLine(index, pl, 1) + checkLine(index, pl, -1) - 1));
+//            System.out.println("Проверка диагонали вправо вверх: " + (checkLine(index, pl, size - 1) + checkLine(index, pl, -(size - 1)) - 1));
+//            System.out.println("Проверка диагонали вправо вниз: " + (checkLine(index, pl, size + 1) + checkLine(index, pl, -(size + 1)) - 1));
         }
 
-        vertical = (checkLine(index, pl, size) + checkLine(index, pl, -size) - 1);
+        vertical = checkLine(index, pl, size).plus(checkLine(index, pl, -size));
+        vertical.count -= 1;
 
-        System.out.println("Проверка вертикали: " + (checkLine(index, pl, size) + checkLine(index, pl, -size) - 1));
+        // System.out.println("Проверка вертикали: " + (checkLine(index, pl, size) + checkLine(index, pl, -size) - 1));
 
-        if (horizontal == winScore || rightDown == winScore || rightUp == winScore || vertical == winScore) {
-            System.out.println(pl + " player win!!");
-            if (pl == 1) {
-                playerX++;
-            } else {
-                playerO++;
-            }
-            tvplayerX.setText("X: " + playerX);
-            tvplayerO.setText("O: " + playerO);
+        if (horizontal.count == winScore) {
+            drawView.setWinLine(horizontal);
+            increaseScope(pl);
+        } else if (rightDown.count == winScore) {
+            drawView.setWinLine(rightDown);
+            increaseScope(pl);
+        } else if (rightUp.count == winScore) {
+            drawView.setWinLine(rightUp);
+            increaseScope(pl);
+        } else if (vertical.count == winScore) {
+            drawView.setWinLine(vertical);
+            increaseScope(pl);
         }
+
+
     }
 
-    private int checkLine(int index, int pl, int step) {
-        int count = 0;
+    private void increaseScope(int pl) {
+        if (pl == 1) {
+            playerX++;
+        } else {
+            playerO++;
+        }
+
+        tvplayerX.setText("X: " + playerX);
+        tvplayerO.setText("O: " + playerO);
+
+        cleanMap();
+    }
+
+    private WinLine checkLine(int index, int pl, int step) {
+        WinLine winLine = new WinLine();
 
         if (index >= 0 && index < size * size)
             if (map[index] == pl) {
-                count++;
-                count += checkLine(index + step, pl, step);
+                winLine.count++;
+                if (index > winLine.indexEnd) {
+                    winLine.indexEnd = index;
+                } else if (index < winLine.indexStart || winLine.indexStart == 0) {
+                    winLine.indexStart = index;
+                }
+                winLine.plus(checkLine(index + step, pl, step));
             }
 
-        return count;
+        return winLine;
     }
 
     public void cleanMap() {
-        map = new int[size * size];
-        //  player = true;
+        setMap(new int[size * size]);
     }
 
     public int[] getMap() {
@@ -222,6 +238,10 @@ public class GameController {
 
     public int[] getPlayersScore() {
         return new int[]{playerX, playerO};
+    }
+
+    public void setDrawView(DrawView drawView) {
+        this.drawView = drawView;
     }
 }
 
