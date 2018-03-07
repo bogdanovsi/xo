@@ -1,9 +1,6 @@
 package com.freekerrr.xo;
 
-import android.util.Log;
 import android.widget.TextView;
-
-import java.util.Arrays;
 
 /**
  * Created by freekerrr on 21.02.2018.
@@ -28,6 +25,7 @@ public class GameController {
     private int playerO;
 
     private int winScore;
+    private int countSteps;
 
     public GameController() {
         map = new int[9];
@@ -35,6 +33,8 @@ public class GameController {
         height = 900;
         player = true;
 
+
+        countSteps = 0;
         winScore = 3;
         playerX = 0;
         playerO = 0;
@@ -83,10 +83,6 @@ public class GameController {
 
     }
 
-    public void setMap(int[] map) {
-        this.map = map;
-    }
-
     public void oneStep(float ex, float ey) {
         Point point = new Point(ex, ey);
 
@@ -106,12 +102,17 @@ public class GameController {
             }
 
             if (dist < dl && map[i] == 0) {
+                countSteps++;
+
                 map[i] = p;
 
                 checkWin(i);
 
                 player = !player;
 
+                if (countSteps == size * size) {
+                    cleanMap();
+                }
                 break;
             }
         }
@@ -122,64 +123,47 @@ public class GameController {
         int pl = map[index];
         System.out.println("index: " + index);
 
-        WinLine horizontal = null;
-        WinLine rightDown = null;
-        WinLine rightUp = null;
-        WinLine vertical = null;
+        int horizontal = 0;
+        int rightDown = 0;
+        int rightUp = 0;
+        int vertical = 0;
 //        тогда мы находимся у левого края
         if (index % size == 0) {
-            horizontal = checkLine(index, pl, 1);
-            rightDown = checkLine(index, pl, size + 1);
-            rightUp = checkLine(index, pl, -size + 1);
+            horizontal = checkVector(index, pl, 1);
+            rightDown = checkVector(index, pl, size + 1);
+            rightUp = checkVector(index, pl, -size + 1);
 
-            System.out.println("Проверка горизонтали: " + checkLine(index, pl, 1));
-            System.out.println("Проверка право вниз: " + checkLine(index, pl, size + 1));
-            System.out.println("Проверка право вверх: " + checkLine(index, pl, -size + 1));
+            System.out.println("Проверка горизонтали: " + checkVector(index, pl, 1));
+            System.out.println("Проверка право вниз: " + checkVector(index, pl, size + 1));
+            System.out.println("Проверка право вверх: " + checkVector(index, pl, -size + 1));
         } else if ((index + 1) % size == 0) {
             //тогда мы находимся у правого края
-            horizontal = checkLine(index, pl, -1);
-            rightDown = checkLine(index, pl, size - 1);
-            rightUp = checkLine(index, pl, -size - 1);
+            horizontal = checkVector(index, pl, -1);
+            rightDown = checkVector(index, pl, size - 1);
+            rightUp = checkVector(index, pl, -size - 1);
 
-            System.out.println("Проверка горизонтали: " + checkLine(index, pl, -1));
-            System.out.println("Проверка лево вниз: " + checkLine(index, pl, size - 1));
-            System.out.println("Проверка лево вверх: " + checkLine(index, pl, -size - 1));
-//                checkLine(index, pl, -1);
-//                System.out.println(checkLine(index, pl, -1));
+            System.out.println("Проверка горизонтали: " + checkVector(index, pl, -1));
+            System.out.println("Проверка лево вниз: " + checkVector(index, pl, size - 1));
+            System.out.println("Проверка лево вверх: " + checkVector(index, pl, -size - 1));
+
         } else {
             //мы в области
-            horizontal = checkLine(index, pl, 1).plus(checkLine(index, pl, -1));
-            horizontal.count -= 1;
-            rightDown = checkLine(index, pl, size + 1).plus(checkLine(index, pl, -(size + 1)));
-            rightDown.count -= 1;
-            rightUp = checkLine(index, pl, size - 1).plus(checkLine(index, pl, -(size - 1)));
-            rightUp.count -= 1;
+            horizontal = (checkVector(index, pl, 1) + checkVector(index, pl, -1) - 1);
+            rightDown = (checkVector(index, pl, size + 1) + checkVector(index, pl, -(size + 1)) - 1);
+            rightUp = (checkVector(index, pl, size - 1) + checkVector(index, pl, -(size - 1)) - 1);
 
-//            System.out.println("Проверка горизонтали: " + (checkLine(index, pl, 1) + checkLine(index, pl, -1) - 1));
-//            System.out.println("Проверка диагонали вправо вверх: " + (checkLine(index, pl, size - 1) + checkLine(index, pl, -(size - 1)) - 1));
-//            System.out.println("Проверка диагонали вправо вниз: " + (checkLine(index, pl, size + 1) + checkLine(index, pl, -(size + 1)) - 1));
+            System.out.println("Проверка горизонтали: " + (checkVector(index, pl, 1) + checkVector(index, pl, -1) - 1));
+            System.out.println("Проверка диагонали вправо вверх: " + (checkVector(index, pl, size - 1) + checkVector(index, pl, -(size - 1)) - 1));
+            System.out.println("Проверка диагонали вправо вниз: " + (checkVector(index, pl, size + 1) + checkVector(index, pl, -(size + 1)) - 1));
         }
 
-        vertical = checkLine(index, pl, size).plus(checkLine(index, pl, -size));
-        vertical.count -= 1;
+        vertical = (checkVector(index, pl, size) + checkVector(index, pl, -size) - 1);
 
-        // System.out.println("Проверка вертикали: " + (checkLine(index, pl, size) + checkLine(index, pl, -size) - 1));
+        System.out.println("Проверка вертикали: " + (checkVector(index, pl, size) + checkVector(index, pl, -size) - 1));
 
-        if (horizontal.count == winScore) {
-            drawView.setWinLine(horizontal);
-            increaseScope(pl);
-        } else if (rightDown.count == winScore) {
-            drawView.setWinLine(rightDown);
-            increaseScope(pl);
-        } else if (rightUp.count == winScore) {
-            drawView.setWinLine(rightUp);
-            increaseScope(pl);
-        } else if (vertical.count == winScore) {
-            drawView.setWinLine(vertical);
+        if (horizontal == winScore || vertical == winScore || rightDown == winScore || rightUp == winScore) {
             increaseScope(pl);
         }
-
-
     }
 
     private void increaseScope(int pl) {
@@ -195,25 +179,39 @@ public class GameController {
         cleanMap();
     }
 
-    private WinLine checkLine(int index, int pl, int step) {
-        WinLine winLine = new WinLine();
+    private int checkVector(int index, int pl, int step) {
+        int count = 0;
 
-        if (index >= 0 && index < size * size)
-            if (map[index] == pl) {
-                winLine.count++;
-                if (index > winLine.indexEnd) {
-                    winLine.indexEnd = index;
-                } else if (index < winLine.indexStart || winLine.indexStart == 0) {
-                    winLine.indexStart = index;
-                }
-                winLine.plus(checkLine(index + step, pl, step));
+        if (indexOfMap(index) && map[index] == pl) {
+            count++;
+
+            int newIndex = index + step;
+            if (indexOfMap(newIndex) && map[newIndex] == pl
+                    && (newIndex % size == 2 || newIndex % size == 0)
+                    && (step == 2 || step == -2)) {
+
+                count++;
+
+                return count;
             }
 
-        return winLine;
+            count += checkVector(index + step, pl, step);
+        }
+
+        return count;
+    }
+
+    private boolean indexOfMap(int index) {
+        if (index >= 0 && index < size * size) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void cleanMap() {
-        setMap(new int[size * size]);
+        map = new int[size * size];
+        countSteps = 0;
     }
 
     public int[] getMap() {
@@ -238,6 +236,10 @@ public class GameController {
 
     public int[] getPlayersScore() {
         return new int[]{playerX, playerO};
+    }
+
+    public void setMap(int[] map) {
+        this.map = map;
     }
 
     public void setDrawView(DrawView drawView) {

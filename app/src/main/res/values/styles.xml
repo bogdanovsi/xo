@@ -5,7 +5,23 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">#2f3c53</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">#487da3</item>
+    </style>
+
+    <style name="dialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@drawable/dialog_custom</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:background">@drawable/dialog_custom</item>
+    </style>
+
+    <style name="dialog_edit_text" parent="@android:style/Widget.EditText">
+        <item name="android:background">@drawable/dialog_custom</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:inputType">number</item>
+        <item name="android:windowSoftInputMode">stateVisible</item>
     </style>
 
     <style name="Button" parent="@android:style/Widget.Button">

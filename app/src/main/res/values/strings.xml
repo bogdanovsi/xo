@@ -6,4 +6,7 @@
     <string name="x5">5x5</string>
     <string name="x10">10x10</string>
     <string name="custommapsize">Custom map size</string>
+    <string name="ok">Ok</string>
+    <string name="enter_map_size">Enter map size:</string>
+    <string name="_70"><![CDATA[<70]]></string>
 </resources>

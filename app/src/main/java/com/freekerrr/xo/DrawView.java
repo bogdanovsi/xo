@@ -104,13 +104,6 @@ class DrawView extends View {
         }
     }
 
-    public void setWinLine(WinLine wl) {
-        indexStart = wl.indexStart;
-        indexEnd = wl.indexEnd;
-
-        winner = true;
-    }
-
     private void drawMap(int[] map) {
         for (int i = 0; i < map.length; i++) {
             if (map[i] != 0) {

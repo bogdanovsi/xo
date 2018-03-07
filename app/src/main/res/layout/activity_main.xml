@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="@drawable/back_start_menu2">
+    android:background="@drawable/back_start_menu">
 
     <com.freekerrr.xo.DrawView
         android:id="@+id/drawView"
@@ -12,9 +12,9 @@
         android:layout_height="370dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="55dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"/>
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="65dp"/>
 
     <TextView
         android:id="@+id/playerX"
@@ -22,10 +22,10 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/button"
         android:layout_alignStart="@+id/drawView"
-        android:layout_marginBottom="43dp"
+        android:layout_marginBottom="53dp"
         android:layout_marginStart="67dp"
-        android:textColor="@android:color/white"
         android:text="X: 0"
+        android:textColor="@android:color/white"
         android:textSize="36sp"/>
 
     <TextView
@@ -36,10 +36,9 @@
         android:layout_alignBottom="@+id/playerX"
         android:layout_alignEnd="@+id/drawView"
         android:layout_marginEnd="80dp"
-        android:textColor="@android:color/white"
         android:text="O: 0"
+        android:textColor="@android:color/white"
         android:textSize="36sp"/>
-
 
     <Button
         android:id="@+id/button"
