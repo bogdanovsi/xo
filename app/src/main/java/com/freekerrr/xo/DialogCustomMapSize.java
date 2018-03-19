@@ -7,12 +7,20 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.transition.ArcMotion;
+import android.transition.ChangeBounds;
+import android.transition.Transition;
+import android.transition.TransitionManager;
+import android.transition.TransitionValues;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 /**
  * Created by freekerrr on 06.03.2018.
@@ -20,9 +28,6 @@ import android.widget.EditText;
 
 public class DialogCustomMapSize extends DialogFragment {
 
-    static DialogCustomMapSize newInstance() {
-        return new DialogCustomMapSize();
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,7 +51,7 @@ public class DialogCustomMapSize extends DialogFragment {
                 try {
                     int s = Integer.valueOf(size.getText().toString());
 
-                    if (s > 0 && s < 70) {
+                    if (s > 0 && s < 50) {
                         ((StartMenu) getActivity()).createGame(s);
                         dismiss();
                     } else {

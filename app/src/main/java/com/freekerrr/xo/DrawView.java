@@ -1,5 +1,6 @@
 package com.freekerrr.xo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -23,26 +24,23 @@ class DrawView extends View {
 
     private float stepX;
     private GameController gameController;
-    private TextView tvplayerX;
-    private TextView tvplayerO;
-    private boolean winner;
-    private int indexStart;
-    private int indexEnd;
+    private TextView textViewX;
+    private TextView textViewO;
+
+    Thread threadControl;
 
     private int size;
 
     public DrawView(Context c, AttributeSet attrs) {
         super(c, attrs);
         context = c;
-        winner = false;
 
-        // and we set a new Paint with the desired attributes
+        threadControl = new Thread();
+
         paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeWidth(4f);
     }
 
     @Override
@@ -55,53 +53,31 @@ class DrawView extends View {
         super.onLayout(changed, left, top, right, bottom);
     }
 
-    // override onSizeChanged
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        // your canvas will draw onto the defined Bitmap
         bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         canvas = new Canvas(bitmap);
 
         width = w;
         height = h;
 
-        gameController = new GameController(tvplayerX, tvplayerO, width, height, size);
-
-        gameController.setDrawView(this);
+        gameController = new GameController(width, height, size);
 
         dxMap = gameController.getDxMap();
 
         stepX = gameController.getStepX();
     }
 
-    // override onDraw
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         this.canvas = canvas;
 
-        paint.setStrokeWidth(8f);
-        if (gameController.getSize() > 15) {
-            paint.setStrokeWidth(3f);
-        }
-        drawTable(gameController.getSize());
-        paint.setStrokeWidth(8f);
+        drawTable(size);
 
         drawMap(gameController.getMap());
 
-        //drawWinLine(winner);
-    }
-
-    private void drawWinLine(boolean winner) {
-        if (winner) {
-            paint.setStrokeWidth(10f);
-            canvas.drawLine(dxMap[indexStart].getX(), dxMap[indexStart].getY(),
-                    dxMap[indexEnd].getX(), dxMap[indexEnd].getY(), paint);
-            paint.setStrokeWidth(4f);
-
-            winner = false;
-        }
     }
 
     private void drawMap(int[] map) {
@@ -122,13 +98,21 @@ class DrawView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float ex = event.getX();
-        float ey = event.getY();
+        final float ex = event.getX();
+        final float ey = event.getY();
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             Log.i("actionDownCoordinates", "ex: " + ex + " ey: " + ey);
+
             gameController.oneStep(ex, ey);
+
+            int scopeX = gameController.getPlayerX();
+            int scopeO = gameController.getPlayerO();
+
+            updateScope(scopeX, scopeO);
+
             invalidate();
+
         }
 
         return true;
@@ -136,6 +120,13 @@ class DrawView extends View {
 
     public void drawTable(int size) {
         paint.setColor(Color.parseColor("#F5C071"));
+        if(size < 15){
+            paint.setStrokeWidth(6f);
+        }else if (size > 25){
+            paint.setStrokeWidth(4f);
+        }else{
+            paint.setStrokeWidth(5f);
+        }
 
         float mulW = width / size;
         float mulH = height / size;
@@ -148,7 +139,11 @@ class DrawView extends View {
 
     private void drawX(Point p) {
         paint.setColor(Color.parseColor("#E39259"));
-        paint.setStrokeWidth(10f);
+        if(size > 15){
+            paint.setStrokeWidth(4f);
+        }else{
+            paint.setStrokeWidth(8f);
+        }
 
         float x1 = p.getX() - stepX * 0.4f;
         float x2 = p.getX() + stepX * 0.4f;
@@ -161,7 +156,11 @@ class DrawView extends View {
 
     private void drawO(Point p) {
         paint.setColor(Color.parseColor("#91BBC9"));
-        paint.setStrokeWidth(10f);
+        if(size > 15){
+            paint.setStrokeWidth(4f);
+        }else{
+            paint.setStrokeWidth(8f);
+        }
 
         float x1 = p.getX() - stepX * 0.4f;
         float x2 = p.getX() + stepX * 0.4f;
@@ -174,17 +173,20 @@ class DrawView extends View {
     public Canvas getCanvas() {
         return canvas;
     }
-
     public GameController getGameController() {
         return gameController;
     }
-
-    public void setTv(TextView tv1, TextView tv2) {
-        tvplayerX = tv1;
-        tvplayerO = tv2;
+    public void setTextViews(TextView tvX, TextView tvO) {
+        textViewX = tvX;
+        textViewO = tvO;
     }
-
     public void setSize(int size) {
         this.size = size;
     }
+
+    public void updateScope(int playerX, int playerO) {
+        textViewX.setText("X: " + playerX);
+        textViewO.setText("O: " + playerO);
+    }
+
 }

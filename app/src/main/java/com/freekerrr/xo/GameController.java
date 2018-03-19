@@ -1,12 +1,14 @@
 package com.freekerrr.xo;
 
+import android.app.Activity;
+import android.os.AsyncTask;
 import android.widget.TextView;
 
 /**
  * Created by freekerrr on 21.02.2018.
  */
 
-public class GameController {
+public class GameController extends AsyncTask<Float, Void, Void> {
 
     private int[] map;
     private float weight;
@@ -16,10 +18,7 @@ public class GameController {
     private float stepX;
     private float stepY;
     private boolean player;
-    private TextView tvplayerX;
-    private TextView tvplayerO;
     private int size;
-    private DrawView drawView;
 
     private int playerX;
     private int playerO;
@@ -33,21 +32,23 @@ public class GameController {
         height = 900;
         player = true;
 
-
         countSteps = 0;
         winScore = 3;
         playerX = 0;
         playerO = 0;
     }
 
-    public GameController(TextView tv1, TextView tv2, float w, float h, int s) {
+    @Override
+    protected Void doInBackground(Float... eventPosition) {
+        oneStep(eventPosition[0], eventPosition[1]);
+        return null;
+    }
+
+    public GameController(float w, float h, int s) {
         this();
         weight = w;
         height = h;
         size = s;
-
-        tvplayerX = tv1;
-        tvplayerO = tv2;
 
         if (size == 1) {
             winScore = 1;
@@ -116,35 +117,27 @@ public class GameController {
                 break;
             }
         }
-
     }
 
     private void checkWin(int index) {
-        int pl = map[index];
-        System.out.println("index: " + index);
+        final int pl = map[index];
 
-        int horizontal = 0;
-        int rightDown = 0;
-        int rightUp = 0;
-        int vertical = 0;
-//        тогда мы находимся у левого края
+        int horizontal;
+        int rightDown;
+        int rightUp;
+        int vertical;
+
         if (index % size == 0) {
+            //left
             horizontal = checkVector(index, pl, 1);
             rightDown = checkVector(index, pl, size + 1);
             rightUp = checkVector(index, pl, -size + 1);
 
-            System.out.println("Проверка горизонтали: " + checkVector(index, pl, 1));
-            System.out.println("Проверка право вниз: " + checkVector(index, pl, size + 1));
-            System.out.println("Проверка право вверх: " + checkVector(index, pl, -size + 1));
         } else if ((index + 1) % size == 0) {
-            //тогда мы находимся у правого края
+            //right
             horizontal = checkVector(index, pl, -1);
             rightDown = checkVector(index, pl, size - 1);
             rightUp = checkVector(index, pl, -size - 1);
-
-            System.out.println("Проверка горизонтали: " + checkVector(index, pl, -1));
-            System.out.println("Проверка лево вниз: " + checkVector(index, pl, size - 1));
-            System.out.println("Проверка лево вверх: " + checkVector(index, pl, -size - 1));
 
         } else {
             //мы в области
@@ -152,16 +145,11 @@ public class GameController {
             rightDown = (checkVector(index, pl, size + 1) + checkVector(index, pl, -(size + 1)) - 1);
             rightUp = (checkVector(index, pl, size - 1) + checkVector(index, pl, -(size - 1)) - 1);
 
-            System.out.println("Проверка горизонтали: " + (checkVector(index, pl, 1) + checkVector(index, pl, -1) - 1));
-            System.out.println("Проверка диагонали вправо вверх: " + (checkVector(index, pl, size - 1) + checkVector(index, pl, -(size - 1)) - 1));
-            System.out.println("Проверка диагонали вправо вниз: " + (checkVector(index, pl, size + 1) + checkVector(index, pl, -(size + 1)) - 1));
         }
 
         vertical = (checkVector(index, pl, size) + checkVector(index, pl, -size) - 1);
 
-        System.out.println("Проверка вертикали: " + (checkVector(index, pl, size) + checkVector(index, pl, -size) - 1));
-
-        if (horizontal == winScore || vertical == winScore || rightDown == winScore || rightUp == winScore) {
+        if (horizontal >= winScore || vertical >= winScore || rightDown >= winScore || rightUp >= winScore) {
             increaseScope(pl);
         }
     }
@@ -173,8 +161,9 @@ public class GameController {
             playerO++;
         }
 
-        tvplayerX.setText("X: " + playerX);
-        tvplayerO.setText("O: " + playerO);
+        if(playerO + playerX % 5 == 0){
+            //dwdw
+        }
 
         cleanMap();
     }
@@ -202,11 +191,7 @@ public class GameController {
     }
 
     private boolean indexOfMap(int index) {
-        if (index >= 0 && index < size * size) {
-            return true;
-        } else {
-            return false;
-        }
+        return index >= 0 && index < size * size;
     }
 
     public void cleanMap() {
@@ -217,33 +202,27 @@ public class GameController {
     public int[] getMap() {
         return map;
     }
-
     public Point[] getDxMap() {
         return dxMap;
     }
-
     public float getStepX() {
         return stepX;
     }
-
     public float getStepY() {
         return stepY;
     }
-
     public int getSize() {
         return size;
     }
-
-    public int[] getPlayersScore() {
-        return new int[]{playerX, playerO};
-    }
-
     public void setMap(int[] map) {
         this.map = map;
     }
-
-    public void setDrawView(DrawView drawView) {
-        this.drawView = drawView;
+    public int getPlayerX() {
+        return playerX;
     }
+    public int getPlayerO() {
+        return playerO;
+    }
+
 }
 

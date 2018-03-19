@@ -1,11 +1,10 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="XOGame" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">#2f3c53</item>
+        <item name="colorPrimaryDark">#1d2c46</item>
         <item name="colorAccent">#487da3</item>
+        <item name="android:buttonStyle">@style/Button</item>
     </style>
 
     <style name="dialog" parent="@android:style/Theme.Dialog">
@@ -15,7 +14,15 @@
         <item name="android:background">@drawable/dialog_custom</item>
     </style>
 
-    <style name="dialog_edit_text" parent="@android:style/Widget.EditText">
+    <style name="dialog_text_view" parent="@android:style/Widget.EditText">
+        <item name="android:background">@drawable/dialog_custom</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">27sp</item>
+        <item name="android:textColor">@android:color/darker_gray</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="dialog_custom_edit_text" parent="@android:style/Widget.EditText">
         <item name="android:background">@drawable/dialog_custom</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">25sp</item>
@@ -24,26 +31,22 @@
         <item name="android:windowSoftInputMode">stateVisible</item>
     </style>
 
-    <style name="Button" parent="@android:style/Widget.Button">
+    <style name="Button" parent="Widget.AppCompat.Button">
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">#233245</item>
         <item name="android:shadowColor">#FF000000</item>
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">-1</item>
         <item name="android:shadowRadius">0.2</item>
-        <item name="android:layout_marginRight">20dp</item>
-        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginEnd">20dp</item>
+        <item name="android:layout_marginStart">20dp</item>
         <item name="android:layout_marginBottom">10dp</item>
         <item name="android:clickable">true</item>
-    </style>
-
-    <style name="start_menu_button" parent="Button">
         <item name="android:background">@drawable/button_start_menu</item>
-        <item name="android:onClick">startGame</item>
     </style>
 
-    <style name="game_button" parent="Button">
-        <item name="android:background">@drawable/button_clean</item>
+    <style name="button_single_player" parent="Button">
+        <item name="android:onClick">startGame</item>
     </style>
 
 </resources>

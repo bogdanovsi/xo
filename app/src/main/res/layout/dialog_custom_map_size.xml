@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+              android:id="@+id/layout_dialog"
+              style="@style/dialog"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              style="@style/dialog"
+              android:orientation="vertical"
     >
 
     <TextView
+        style="@style/dialog_text_view"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:textSize="27sp"
-        android:textColor="@android:color/darker_gray"
-        android:gravity="center"
-        android:textStyle="bold"
         android:text="@string/enter_map_size"
         />
 
     <EditText
         android:id="@+id/size"
-        style="@style/dialog_edit_text"
+        style="@style/dialog_custom_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/_50"
         android:textColor="@android:color/white"
-        android:hint="@string/_70"
         />
 
     <Button
         android:id="@+id/ok"
-        style="@style/start_menu_button"
+        style="@style/Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/ok"/>
